@@ -1,0 +1,57 @@
+package com.awesomity.marketplace.marketplace_api.controller;
+
+
+import com.awesomity.marketplace.marketplace_api.dto.UpdateProfileRequest;
+import com.awesomity.marketplace.marketplace_api.dto.UpdateProfileResult;
+import com.awesomity.marketplace.marketplace_api.entity.User;
+import com.awesomity.marketplace.marketplace_api.service.UserService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.*;
+import com.awesomity.marketplace.marketplace_api.dto.ApiResponse;
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping(path = "/api/v1/users")
+public class UserController {
+
+    private final UserService userService;
+
+
+    @GetMapping("/current-user")
+    public ResponseEntity<ApiResponse> currentlyLoggedInUser() {
+        User currentUser = userService.getLoggedInUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.failure("No user is currently logged in"));
+        }
+        return ResponseEntity.ok(ApiResponse.success("Currently logged-in user retrieved successfully", currentUser));
+    }
+
+
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
+        User currentUser = userService.getLoggedInUser();
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.failure("Not logged in"));
+        }
+
+        UpdateProfileResult result = userService.updateProfile(currentUser, request);
+        User updatedUser = result.getUpdatedUser();
+        boolean emailChanged = result.isEmailChanged();
+
+        String message;
+        if (emailChanged) {
+            message = "Email changed. A verification token has been sent to your new email address. Please verify to complete the update.";
+        } else {
+            message = "Profile updated successfully!";
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(message, updatedUser));
+    }
+
+}
