@@ -8,10 +8,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+
 
 
 
@@ -37,19 +37,6 @@ public class AdminCategoryController {
         return ResponseEntity.ok(ApiResponse.success("Category updated", updated));
     }
 
-
-    @GetMapping("/categories")
-    public ResponseEntity<ApiResponse> getAllCategories() {
-        List<Category> categories = categoryService.findAll();
-        return ResponseEntity.ok(ApiResponse.success("Categories retrieved", categories));
-    }
-
-
-    @GetMapping("/categories/{categoryId}")
-    public ResponseEntity<ApiResponse> getCategoryById(@PathVariable Long categoryId) {
-        Category category = categoryService.findById(categoryId);
-        return ResponseEntity.ok(ApiResponse.success("Category retrieved", category));
-    }
 
 
     @DeleteMapping("/categories/{categoryId}")

@@ -38,11 +38,17 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Permit access to authentication endpoints, verification, and Swagger docs.
-                        .requestMatchers("/api/auth/**", "/verify", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                        .permitAll()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/verify",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers("/api/v1/categories/**").authenticated()
                         .anyRequest().authenticated()
                 );
+
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
