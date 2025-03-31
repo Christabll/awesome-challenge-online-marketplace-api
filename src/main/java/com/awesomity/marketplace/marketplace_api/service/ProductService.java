@@ -12,5 +12,8 @@ public interface ProductService {
     Product markAsFeatured(Long productId);
     List<Product> findAll();
     Product findById(Long productId);
+    List<Product> getProductsByCategory(Long categoryId);
+    List<Product> getProductsByTag(String tag);
+    List<Product> searchProducts(String query);
 
 }

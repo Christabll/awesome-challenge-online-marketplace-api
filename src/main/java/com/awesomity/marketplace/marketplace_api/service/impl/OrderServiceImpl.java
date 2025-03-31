@@ -1,14 +1,15 @@
 package com.awesomity.marketplace.marketplace_api.service.impl;
 
-import com.awesomity.marketplace.marketplace_api.dto.OrderRequestDto;
 import com.awesomity.marketplace.marketplace_api.entity.Order;
 import com.awesomity.marketplace.marketplace_api.entity.OrderStatus;
 import com.awesomity.marketplace.marketplace_api.entity.User;
 import com.awesomity.marketplace.marketplace_api.exception.ResourceNotFoundException;
+import com.awesomity.marketplace.marketplace_api.exception.BadRequestException;
 import com.awesomity.marketplace.marketplace_api.repository.OrderRepository;
 import com.awesomity.marketplace.marketplace_api.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,8 +19,19 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
 
     @Override
-    public List<Order> findAll() {
-        return orderRepository.findAll();
+    public Order createOrder(Order order) {
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.PLACED);
+        return orderRepository.save(order);
+    }
+
+    @Override
+    public Order updateOrderStatus(Long orderId, String newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
+        OrderStatus statusEnum = OrderStatus.valueOf(newStatus.toUpperCase());
+        order.setStatus(statusEnum);
+        return orderRepository.save(order);
     }
 
     @Override
@@ -28,40 +40,35 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
     }
 
+    @Override
+    public List<Order> findAll() {
+        return orderRepository.findAll();
+    }
 
     @Override
-    public Order updateStatus(Long orderId, String status) {
-        Order order = findById(orderId);
-        try {
-            order.setStatus(OrderStatus.valueOf(status.toUpperCase()));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid order status: " + status);
+    public void deleteOrder(Long orderId) {
+        if (!orderRepository.existsById(orderId)) {
+            throw new ResourceNotFoundException("Order", "id", orderId);
         }
-        return orderRepository.save(order);
+        orderRepository.deleteById(orderId);
     }
-
-    @Override
-    public Order placeOrder(User user, OrderRequestDto dto) {
-        Order order = new Order();
-        order.setUser(user);
-        order.setStatus(OrderStatus.PLACED);
-
-        return orderRepository.save(order);
-    }
-
 
     @Override
     public List<Order> findOrdersByUser(User user) {
         return orderRepository.findByUser(user);
     }
 
-
     @Override
-    public Order findOrderByIdForUser(Long orderId, User user) {
-        Order order = findById(orderId);
+    public Order cancelOrderForShopper(Long orderId, User user) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
         if (!order.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("Order", "id", orderId);
+            throw new BadRequestException("You are not authorized to cancel this order.");
         }
-        return order;
+        if (!(order.getStatus() == OrderStatus.PLACED || order.getStatus() == OrderStatus.PROCESSING)) {
+            throw new BadRequestException("Order cannot be cancelled at this stage.");
+        }
+        order.setStatus(OrderStatus.CANCELED);
+        return orderRepository.save(order);
     }
 }

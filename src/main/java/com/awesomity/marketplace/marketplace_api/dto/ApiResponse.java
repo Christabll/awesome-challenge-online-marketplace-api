@@ -1,31 +1,24 @@
 package com.awesomity.marketplace.marketplace_api.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiResponse {
-
-    private boolean success;
-    private Object data;
+    private Boolean success;
     private String message;
+    private Object data;
 
     public static ApiResponse success(String message, Object data) {
-        ApiResponse response = new ApiResponse();
-        response.setSuccess(true);
-        response.setMessage(message);
-        response.setData(data);
-        return response;
+        return new ApiResponse(true, message, data);
     }
 
-    public static ApiResponse failure(String message) {
-        ApiResponse response = new ApiResponse();
-        response.setSuccess(false);
-        response.setMessage(message);
-        return response;
+    public static ApiResponse fail(String message) {
+        return new ApiResponse(false, message, null);
     }
-
 }

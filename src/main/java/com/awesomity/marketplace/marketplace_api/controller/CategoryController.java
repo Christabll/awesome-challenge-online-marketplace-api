@@ -27,6 +27,7 @@ public class CategoryController {
         return ResponseEntity.ok(ApiResponse.success("All categories retrieved", categories));
     }
 
+
     @GetMapping("/{categoryId}")
     public ResponseEntity<ApiResponse> getCategoryById(@PathVariable Long categoryId) {
         Category category = categoryService.findById(categoryId);

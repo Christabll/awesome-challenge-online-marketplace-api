@@ -74,7 +74,7 @@ public class AdminUserController {
         User user = userService.findById(userId);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.failure("User not found with ID " + userId));
+                    .body(ApiResponse.fail("User not found with ID " + userId));
         }
 
         user.setRole(Role.ROLE_SELLER);

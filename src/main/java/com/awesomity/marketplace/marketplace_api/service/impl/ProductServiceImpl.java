@@ -33,6 +33,10 @@ public class ProductServiceImpl implements ProductService {
         product.setFeatured(false);
         product.setCategory(category);
 
+        if(dto.getTags() != null) {
+            product.setTags(dto.getTags());
+        }
+
         return productRepository.save(product);
     }
 
@@ -73,5 +77,21 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
     }
+
+    @Override
+    public List<Product> getProductsByCategory(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<Product> getProductsByTag(String tag) {
+        return productRepository.findByTagsContaining(tag);
+    }
+
+    @Override
+    public List<Product> searchProducts(String query) {
+        return productRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query);
+    }
+
 
 }

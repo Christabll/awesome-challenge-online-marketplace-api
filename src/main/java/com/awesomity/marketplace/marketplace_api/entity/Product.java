@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 
 import lombok.*;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "products")
 @Data
@@ -36,5 +38,9 @@ public class Product {
 
     @Column(nullable = false)
     private String currency;
+
+    @ElementCollection
+    private Set<String> tags;
+
 
 }

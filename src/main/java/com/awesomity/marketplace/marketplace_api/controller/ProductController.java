@@ -7,10 +7,7 @@ import com.awesomity.marketplace.marketplace_api.repository.ProductRepository;
 import com.awesomity.marketplace.marketplace_api.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RequiredArgsConstructor
@@ -21,8 +18,21 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllProducts() {
-        List<Product> products = productService.findAll();
+    public ResponseEntity<ApiResponse> getProducts(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String tag,
+            @RequestParam(required = false) String search) {
+
+        List<Product> products;
+        if (categoryId != null) {
+            products = productService.getProductsByCategory(categoryId);
+        } else if (tag != null) {
+            products = productService.getProductsByTag(tag);
+        } else if (search != null) {
+            products = productService.searchProducts(search);
+        } else {
+            products = productService.findAll();
+        }
         return ResponseEntity.ok(ApiResponse.success("Products retrieved", products));
     }
 
@@ -31,5 +41,4 @@ public class ProductController {
         Product product = productService.findById(productId);
         return ResponseEntity.ok(ApiResponse.success("Product retrieved", product));
     }
-
 }

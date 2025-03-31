@@ -26,7 +26,7 @@ public class UserController {
         User currentUser = userService.getLoggedInUser();
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.failure("No user is currently logged in"));
+                    .body(ApiResponse.fail("No user is currently logged in"));
         }
         return ResponseEntity.ok(ApiResponse.success("Currently logged-in user retrieved successfully", currentUser));
     }
@@ -37,7 +37,7 @@ public class UserController {
         User currentUser = userService.getLoggedInUser();
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.failure("Not logged in"));
+                    .body(ApiResponse.fail("Not logged in"));
         }
 
         UpdateProfileResult result = userService.updateProfile(currentUser, request);
