@@ -121,7 +121,7 @@ This is a comprehensive RESTful API for an online marketplace. It allows users t
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/YourUsername/awesome-challenge-online-marketplace-api.git
+   git clone https://github.com/Christabll/awesome-challenge-online-marketplace-api.git
    cd awesome-challenge-online-marketplace-api
 
   2. **Configure the Environment**:
@@ -156,6 +156,8 @@ This is a comprehensive RESTful API for an online marketplace. It allows users t
   
           http://localhost:8081/swagger-ui.html
   This page provides a detailed list of all endpoints, request/response schemas, and allows you to interact with the API directly.
+  ![image](https://github.com/user-attachments/assets/e41f5124-7cf8-490a-8f2b-d53b32e341ce)
+
 
  ### System Design
  
