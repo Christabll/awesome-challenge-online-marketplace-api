@@ -12,4 +12,5 @@ public interface OrderService {
     void deleteOrder(Long orderId);
     List<Order> findOrdersByUser(User user);
     Order cancelOrderForShopper(Long orderId, User user);
+
 }
