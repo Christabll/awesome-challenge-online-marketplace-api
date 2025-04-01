@@ -8,6 +8,8 @@ import com.awesomity.marketplace.marketplace_api.exception.BadRequestException;
 import com.awesomity.marketplace.marketplace_api.repository.OrderRepository;
 import com.awesomity.marketplace.marketplace_api.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +19,8 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final JavaMailSender mailSender;
+
 
     @Override
     public Order createOrder(Order order) {
@@ -31,8 +35,23 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
         OrderStatus statusEnum = OrderStatus.valueOf(newStatus.toUpperCase());
         order.setStatus(statusEnum);
-        return orderRepository.save(order);
+        Order updatedOrder = orderRepository.save(order);
+
+        sendStatusUpdateEmail(updatedOrder);
+        return updatedOrder;
     }
+
+    private void sendStatusUpdateEmail(Order order) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(order.getUser().getEmail());
+        message.setSubject("Your Order Status Has Been Updated");
+        message.setText("Hello " + order.getUser().getFirstName() + ",\n\n" +
+                "Your order with ID " + order.getId() + " has been updated to: " + order.getStatus() + ".\n\n" +
+                "Thank you for shopping with us!\n" +
+                "Marketplace Team");
+        mailSender.send(message);
+    }
+
 
     @Override
     public Order findById(Long orderId) {
