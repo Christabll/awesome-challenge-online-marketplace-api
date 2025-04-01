@@ -6,6 +6,7 @@ import com.awesomity.marketplace.marketplace_api.exception.ResourceNotFoundExcep
 import com.awesomity.marketplace.marketplace_api.repository.ProductRepository;
 import com.awesomity.marketplace.marketplace_api.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +39,13 @@ public class ProductController {
 
     @GetMapping("/{productId}")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable Long productId) {
-        Product product = productService.findById(productId);
-        return ResponseEntity.ok(ApiResponse.success("Product retrieved", product));
+        try {
+            Product product = productService.findById(productId);
+            return ResponseEntity.ok(ApiResponse.success("Product retrieved", product));
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.fail(ex.getMessage()));
+        }
     }
+
 }

@@ -21,22 +21,21 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final JavaMailSender mailSender;
 
-
     @Override
     public Order createOrder(Order order) {
         order.setOrderDate(LocalDateTime.now());
         order.setStatus(OrderStatus.PLACED);
+
         return orderRepository.save(order);
     }
 
     @Override
     public Order updateOrderStatus(Long orderId, String newStatus) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
         OrderStatus statusEnum = OrderStatus.valueOf(newStatus.toUpperCase());
         order.setStatus(statusEnum);
         Order updatedOrder = orderRepository.save(order);
-
         sendStatusUpdateEmail(updatedOrder);
         return updatedOrder;
     }
@@ -52,11 +51,10 @@ public class OrderServiceImpl implements OrderService {
         mailSender.send(message);
     }
 
-
     @Override
     public Order findById(Long orderId) {
         return orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
     }
 
     @Override
@@ -67,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void deleteOrder(Long orderId) {
         if (!orderRepository.existsById(orderId)) {
-            throw new ResourceNotFoundException("Order", "id", orderId);
+            throw new ResourceNotFoundException("Order not found with id: " + orderId);
         }
         orderRepository.deleteById(orderId);
     }
@@ -80,7 +78,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order cancelOrderForShopper(Long orderId, User user) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
         if (!order.getUser().getId().equals(user.getId())) {
             throw new BadRequestException("You are not authorized to cancel this order.");
         }

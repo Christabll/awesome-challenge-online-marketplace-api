@@ -50,11 +50,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
     @Override
     public User update(User user) {
+        userRepository.findById(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + user.getId()));
         return userRepository.save(user);
     }
 
@@ -71,7 +74,8 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(userId);
     }
 
-//Update user profile
+
+    //Update user profile
     @Override
     public UpdateProfileResult updateProfile(User currentUser, UpdateProfileRequest request) {
         boolean emailChanged = false;

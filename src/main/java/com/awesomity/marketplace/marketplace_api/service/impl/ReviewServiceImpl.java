@@ -25,11 +25,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review createReview(Review review, Long productId, User user) {
-
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
-            boolean hasOrdered = orderRepository.existsOrderByUserAndProduct(user.getId(), productId);
+        boolean hasOrdered = orderRepository.existsOrderByUserAndProduct(user.getId(), productId);
         if (!hasOrdered) {
             throw new BadRequestException("You cannot review a product you have not ordered.");
         }
@@ -39,6 +38,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setCreatedAt(LocalDateTime.now());
         return reviewRepository.save(review);
     }
+
 
     @Override
     public List<Review> getReviewsByProduct(Long productId) {

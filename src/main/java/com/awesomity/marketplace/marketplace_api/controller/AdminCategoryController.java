@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 
-
-
 @RestController
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
@@ -26,7 +24,8 @@ public class AdminCategoryController {
     @PostMapping("/categories")
     public ResponseEntity<ApiResponse> createCategory(@Valid @RequestBody CategoryDto dto) {
         Category category = categoryService.createCategory(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Category created", category));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Category created", category));
     }
 
 
