@@ -5,12 +5,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 
-@ActiveProfiles("test")
+
 @SpringBootTest
+@ActiveProfiles("test")
 class MarketplaceApiApplicationTests {
 
 	@Test
 	void contextLoads() {
+		System.out.println("🔧 Running with test profile...");
 	}
 
 }
