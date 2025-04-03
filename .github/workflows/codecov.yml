@@ -25,8 +25,12 @@ jobs:
       - name: Build with Maven
         run: mvn clean verify -Dspring.profiles.active=test
 
+      - name: List coverage file
+        run: ls -l target/site/jacoco/
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           files: target/site/jacoco/jacoco.xml
           fail_ci_if_error: true
+
