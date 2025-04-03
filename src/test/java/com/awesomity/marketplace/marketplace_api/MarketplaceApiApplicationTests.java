@@ -6,7 +6,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 class MarketplaceApiApplicationTests {
 
