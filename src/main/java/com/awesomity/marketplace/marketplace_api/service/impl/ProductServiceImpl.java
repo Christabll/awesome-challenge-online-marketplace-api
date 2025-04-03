@@ -8,19 +8,21 @@ import com.awesomity.marketplace.marketplace_api.repository.CategoryRepository;
 import com.awesomity.marketplace.marketplace_api.repository.ProductRepository;
 import com.awesomity.marketplace.marketplace_api.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
+
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-
     @Override
     public Product createProduct(ProductDto dto) {
-
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", dto.getCategoryId()));
 
@@ -33,30 +35,41 @@ public class ProductServiceImpl implements ProductService {
         product.setFeatured(false);
         product.setCategory(category);
 
-        if(dto.getTags() != null) {
+        if (dto.getTags() != null) {
             product.setTags(dto.getTags());
         }
 
-        return productRepository.save(product);
+        Product saved = productRepository.save(product);
+        log.info("Created product with ID: {}", saved.getId());
+        return saved;
     }
 
     @Override
     public Product updateProduct(Long productId, ProductDto dto) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
+
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
         product.setQuantity(dto.getQuantity());
-        return productRepository.save(product);
+        product.setCurrency(dto.getCurrency());
+
+        if (dto.getTags() != null) {
+            product.setTags(dto.getTags());
+        }
+
+        Product updated = productRepository.save(product);
+        log.info("Updated product with ID: {}", updated.getId());
+        return updated;
     }
 
     @Override
     public void deleteProduct(Long productId) {
-        if (!productRepository.existsById(productId)) {
-            throw new ResourceNotFoundException("Product", "id", productId);
-        }
-        productRepository.deleteById(productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
+        productRepository.delete(product);
+        log.info("Deleted product with ID: {}", productId);
     }
 
     @Override
@@ -64,7 +77,9 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
         product.setFeatured(true);
-        return productRepository.save(product);
+        Product updated = productRepository.save(product);
+        log.info("Marked product as featured. ID: {}", updated.getId());
+        return updated;
     }
 
     @Override
@@ -92,6 +107,4 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> searchProducts(String query) {
         return productRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query);
     }
-
-
 }

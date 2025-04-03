@@ -12,10 +12,9 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUser(User user);
 
-    @Query("SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END " +
-            "FROM Order o JOIN o.orderItems oi " +
+    @Query("SELECT CASE WHEN COUNT(oi) > 0 THEN true ELSE false END " +
+            "FROM OrderItem oi JOIN oi.order o " +
             "WHERE o.user.id = :userId AND oi.product.id = :productId")
-    boolean existsOrderByUserAndProduct(@Param("userId") Long userId,
-                                        @Param("productId") Long productId);
+    boolean existsOrderByUserAndProduct(@Param("userId") Long userId, @Param("productId") Long productId);
 
 }

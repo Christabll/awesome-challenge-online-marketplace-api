@@ -1,4 +1,3 @@
-# Awesome Challenge: Online Marketplace API
 
 ## Overview
 
@@ -9,6 +8,15 @@ This is a comprehensive RESTful API for an online marketplace. It allows users t
 
 - **Users**
   - **Register & Login:**  
+  - Note on User Registration and Roles:
+    Upon application startup, a default admin account is automatically created with the following credentials:
+
+    Email: christa.bellaishi@gmail.com
+
+    Password: Admin123!
+
+This default admin is the only account authorized to register additional admin users. All self-registered users are assigned the buyer role by default, and only an admin can promote a buyer to a seller.
+
     Shoppers receive email verification on registration. They can log in and manage their profiles.
   - **Endpoints:**  
     - `POST /api/auth/register`

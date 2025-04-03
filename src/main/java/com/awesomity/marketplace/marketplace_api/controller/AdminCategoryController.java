@@ -5,42 +5,36 @@ import com.awesomity.marketplace.marketplace_api.dto.CategoryDto;
 import com.awesomity.marketplace.marketplace_api.entity.Category;
 import com.awesomity.marketplace.marketplace_api.service.CategoryService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class AdminCategoryController {
 
     private final CategoryService categoryService;
 
     @PostMapping("/categories")
-    public ResponseEntity<ApiResponse> createCategory(@Valid @RequestBody CategoryDto dto) {
+    public ResponseEntity<ApiResponse<Category>> createCategory(@Valid @RequestBody CategoryDto dto) {
         Category category = categoryService.createCategory(dto);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Category created", category));
+        return ApiResponse.created("Category created successfully", category);
     }
-
 
     @PutMapping("/categories/{categoryId}")
-    public ResponseEntity<ApiResponse> updateCategory(@PathVariable Long categoryId,
-                                                      @Valid @RequestBody CategoryDto dto) {
+    public ResponseEntity<ApiResponse<Category>> updateCategory(@PathVariable Long categoryId,
+                                                                @Valid @RequestBody CategoryDto dto) {
         Category updated = categoryService.updateCategory(categoryId, dto);
-        return ResponseEntity.ok(ApiResponse.success("Category updated", updated));
+        return ApiResponse.ok("Category updated", updated);
     }
-
-
 
     @DeleteMapping("/categories/{categoryId}")
-    public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Long categoryId) {
+    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long categoryId) {
         categoryService.deleteCategory(categoryId);
-        return ResponseEntity.ok(ApiResponse.success("Category deleted", null));
+        return ApiResponse.ok("Category deleted", null);
     }
+
 }

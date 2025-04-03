@@ -10,12 +10,15 @@ import com.awesomity.marketplace.marketplace_api.repository.ProductRepository;
 import com.awesomity.marketplace.marketplace_api.repository.ReviewRepository;
 import com.awesomity.marketplace.marketplace_api.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
@@ -24,16 +27,15 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review createReview(int rating, String comment, Long productId, User user) {
-
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
         boolean hasOrdered = orderRepository.existsOrderByUserAndProduct(user.getId(), productId);
         if (!hasOrdered) {
             throw new BadRequestException("You cannot review a product you have not purchased.");
         }
 
-        // Create and save the review
+
         Review review = new Review();
         review.setRating(rating);
         review.setComment(comment);
@@ -41,13 +43,23 @@ public class ReviewServiceImpl implements ReviewService {
         review.setUser(user);
         review.setProduct(product);
 
-        return reviewRepository.save(review);
+        Review saved = reviewRepository.save(review);
+        log.info("User {} submitted review for product {}", user.getId(), productId);
+        return saved;
     }
 
     @Override
     public List<Review> getReviewsByProduct(Long productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
-        return reviewRepository.findByProduct(product);
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
+
+        List<Review> reviews = reviewRepository.findByProduct(product);
+
+        if (reviews.isEmpty()) {
+            throw new ResourceNotFoundException("Review", "productId", productId);
+        }
+
+        log.info("Retrieved {} reviews for product {}", reviews.size(), productId);
+        return reviews;
     }
 }
