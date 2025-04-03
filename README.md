@@ -1,3 +1,6 @@
+[![codecov](https://codecov.io/gh/ChristabII/awesome-challenge-online-marketplace-api/branch/main/graph/badge.svg)](https://codecov.io/gh/ChristabII/awesome-challenge-online-marketplace-api)
+
+
 # Awesome Challenge: Online Marketplace API
 
 ## Overview
