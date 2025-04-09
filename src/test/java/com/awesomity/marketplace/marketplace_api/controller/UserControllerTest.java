@@ -55,10 +55,12 @@ class UserControllerTest {
     @Test
     void shouldUpdateProfileSuccessfully() {
         UpdateProfileRequest request = new UpdateProfileRequest();
+        request.setFirstName("Bella");
+        request.setLastName("Christa");
+        request.setPassword("newPassword123");
+        request.setEmail(mockUser.getEmail());
 
-        UpdateProfileResult result = new UpdateProfileResult();
-        result.setUpdatedUser(mockUser);
-        result.setEmailChanged(false);
+        UpdateProfileResult result = new UpdateProfileResult(mockUser, false);
 
         when(userService.getLoggedInUser()).thenReturn(mockUser);
         when(userService.updateProfile(mockUser, request)).thenReturn(result);
@@ -70,21 +72,28 @@ class UserControllerTest {
         assertThat(response.getBody().getData()).isEqualTo(mockUser);
     }
 
+
     @Test
     void shouldReturnEmailChangedMessageIfEmailChanged() {
         UpdateProfileRequest request = new UpdateProfileRequest();
-        UpdateProfileResult result = new UpdateProfileResult();
-        result.setUpdatedUser(mockUser);
-        result.setEmailChanged(true);
+        request.setFirstName("Bella");
+        request.setLastName("Christa");
+        request.setEmail("new@email.com");
+        request.setPassword("updatedPassword");
+
+        UpdateProfileResult result = new UpdateProfileResult(mockUser, true);
 
         when(userService.getLoggedInUser()).thenReturn(mockUser);
         when(userService.updateProfile(mockUser, request)).thenReturn(result);
 
         ResponseEntity<ApiResponse<User>> response = userController.updateProfile(request);
 
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
         assertThat(response.getBody().getMessage())
                 .contains("Email changed. A verification token has been sent");
+        assertThat(response.getBody().getData()).isEqualTo(mockUser);
     }
+
 
     @Test
     void shouldThrowIfNotLoggedInOnProfileUpdate() {
@@ -94,4 +103,5 @@ class UserControllerTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Not logged in");
     }
+
 }
