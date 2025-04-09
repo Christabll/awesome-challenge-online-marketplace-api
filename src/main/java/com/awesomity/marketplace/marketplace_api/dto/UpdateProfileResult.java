@@ -2,9 +2,12 @@ package com.awesomity.marketplace.marketplace_api.dto;
 
 import com.awesomity.marketplace.marketplace_api.entity.User;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProfileResult {
     private User updatedUser;
