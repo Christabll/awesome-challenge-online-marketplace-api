@@ -1,11 +1,13 @@
 package com.awesomity.marketplace.marketplace_api.service.impl;
 
+import com.awesomity.marketplace.marketplace_api.dto.AdminOrderDto;
 import com.awesomity.marketplace.marketplace_api.dto.OrderItemDto;
 import com.awesomity.marketplace.marketplace_api.entity.*;
 import com.awesomity.marketplace.marketplace_api.exception.BadRequestException;
 import com.awesomity.marketplace.marketplace_api.exception.ResourceNotFoundException;
 import com.awesomity.marketplace.marketplace_api.repository.OrderItemRepository;
 import com.awesomity.marketplace.marketplace_api.repository.OrderRepository;
+import com.awesomity.marketplace.marketplace_api.repository.PaymentRepository;
 import com.awesomity.marketplace.marketplace_api.service.OrderService;
 import com.awesomity.marketplace.marketplace_api.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +30,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ProductService productService;
     private final JavaMailSender mailSender;
+    private final PaymentRepository paymentRepository;
+
 
 
     @Override
@@ -81,10 +86,25 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
     }
 
+    @Override
+    public List<AdminOrderDto> findAll() {
+        return orderRepository.findAll()
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
-    public List<Order> findAll() {
-        return orderRepository.findAll();
+    public List<AdminOrderDto> getAllOrdersWithPayments() {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> {
+                    Payment payment = order.getPayment();
+                    return payment != null && payment.getStatus() == PaymentStatus.SUCCESS;
+                })
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
 
@@ -93,7 +113,6 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
 
-        // Avoid ConcurrentModificationException by copying to a new list
         List<OrderItem> itemsToDelete = new ArrayList<>(order.getOrderItems());
 
         orderItemRepository.deleteAll(itemsToDelete);
@@ -131,6 +150,28 @@ public class OrderServiceImpl implements OrderService {
         log.info("Order {} cancelled successfully by user {}", cancelled.getId(), user.getId());
         return cancelled;
     }
+
+    private AdminOrderDto toDto(Order order) {
+        Payment payment = order.getPayment();
+
+        String paymentStatus = (payment != null) ? payment.getStatus().name() : "UNPAID";
+        String paymentMethod = (payment != null && payment.getStatus() == PaymentStatus.SUCCESS)
+                ? payment.getPaymentMethod().name()
+                : null;
+
+        return new AdminOrderDto(
+                order.getId(),
+                order.getUser().getFirstName() + " " + order.getUser().getLastName(),
+                order.getUser().getEmail(),
+                order.getStatus().name(),
+                paymentStatus,
+                paymentMethod,
+                order.getTotalAmount(),
+                order.getOrderDate()
+        );
+    }
+
+
 
 
 }

@@ -1,5 +1,6 @@
 package com.awesomity.marketplace.marketplace_api.controller;
 
+import com.awesomity.marketplace.marketplace_api.dto.AdminOrderDto;
 import com.awesomity.marketplace.marketplace_api.dto.ApiResponse;
 import com.awesomity.marketplace.marketplace_api.entity.Order;
 import com.awesomity.marketplace.marketplace_api.service.OrderService;
@@ -20,12 +21,13 @@ public class AdminOrderController {
 
     private final OrderService orderService;
 
+
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Order>>> getAllOrders() {
-        log.info("GET /api/v1/admin/orders - Fetching all orders");
-        List<Order> orders = orderService.findAll();
-        return ApiResponse.ok("Orders retrieved", orders);
+    public ResponseEntity<ApiResponse<List<AdminOrderDto>>> getAllOrders() {
+        List<AdminOrderDto> orders = orderService.findAll();
+        return ApiResponse.ok("All orders retrieved", orders);
     }
+
 
     @GetMapping("/{orderId}")
     public ResponseEntity<ApiResponse<Order>> getOrderById(@PathVariable Long orderId) {
@@ -33,6 +35,7 @@ public class AdminOrderController {
         Order order = orderService.findById(orderId);
         return ApiResponse.ok("Order retrieved", order);
     }
+
 
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<ApiResponse<Order>> updateOrderStatus(@PathVariable Long orderId,
@@ -42,10 +45,19 @@ public class AdminOrderController {
         return ApiResponse.ok("Order status updated", updatedOrder);
     }
 
+
     @DeleteMapping("/{orderId}")
     public ResponseEntity<ApiResponse<Void>> deleteOrder(@PathVariable Long orderId) {
         log.info("DELETE /api/v1/admin/orders/{} - Deleting order", orderId);
         orderService.deleteOrder(orderId);
         return ApiResponse.ok("Order deleted", null);
     }
+
+
+    @GetMapping("/with-payments")
+    public ResponseEntity<ApiResponse<List<AdminOrderDto>>> getOrdersWithPayments() {
+        List<AdminOrderDto> orders = orderService.getAllOrdersWithPayments();
+        return ApiResponse.ok("Orders with payment info", orders);
+    }
+
 }

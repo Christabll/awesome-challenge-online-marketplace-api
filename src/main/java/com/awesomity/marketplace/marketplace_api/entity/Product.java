@@ -1,12 +1,9 @@
 package com.awesomity.marketplace.marketplace_api.entity;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import lombok.*;
-
 import java.util.Set;
+
 
 @Entity
 @Table(name = "products")

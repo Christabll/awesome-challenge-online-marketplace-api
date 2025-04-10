@@ -19,10 +19,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
+
 
 @Slf4j
 @RestController
@@ -59,6 +59,7 @@ public class AuthController {
         return ApiResponse.ok("Login successful", new AuthResponse(token, "Login successful"));
     }
 
+
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -93,6 +94,7 @@ public class AuthController {
                 null
         );
     }
+
 
     @PostMapping("/verify")
     public ResponseEntity<ApiResponse<String>> verifyUser(@RequestBody VerifyRequest request) {

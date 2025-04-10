@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -27,7 +27,7 @@ public class CategoryController {
 
     @GetMapping("/{categoryId}")
     public ResponseEntity<ApiResponse<Category>> getCategoryById(@PathVariable Long categoryId) {
-        Category category = categoryService.findById(categoryId); // Throws if not found
+        Category category = categoryService.findById(categoryId);
         log.info("Category retrieved with ID: {}", categoryId);
         return ApiResponse.ok("Category retrieved", category);
     }

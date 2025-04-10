@@ -1,5 +1,6 @@
 package com.awesomity.marketplace.marketplace_api.serviceImpl;
 
+import com.awesomity.marketplace.marketplace_api.dto.AdminOrderDto;
 import com.awesomity.marketplace.marketplace_api.dto.OrderItemDto;
 import com.awesomity.marketplace.marketplace_api.entity.*;
 import com.awesomity.marketplace.marketplace_api.exception.BadRequestException;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,6 +35,28 @@ class OrderServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
+
+    private Order createMockOrder() {
+        User user = new User();
+        user.setFirstName("Amies");
+        user.setLastName("Guiella");
+        user.setEmail("tstawesome@gmail.com");
+
+        Payment payment = new Payment();
+        payment.setStatus(PaymentStatus.SUCCESS);
+        payment.setPaymentMethod(PaymentMethod.CREDIT_CARD);
+
+        Order order = new Order();
+        order.setId(1L);
+        order.setUser(user);
+        order.setPayment(payment);
+        order.setStatus(OrderStatus.PLACED);
+        order.setTotalAmount(100.0);
+        order.setOrderDate(LocalDateTime.now());
+
+        return order;
+    }
+
 
     @Test
     void shouldCreateOrderWithItems() {
@@ -83,9 +108,19 @@ class OrderServiceImplTest {
 
     @Test
     void shouldReturnAllOrders() {
-        when(orderRepository.findAll()).thenReturn(List.of(new Order(), new Order()));
-        assertThat(orderService.findAll()).hasSize(2);
+        Order mockOrder1 = createMockOrder();
+        Order mockOrder2 = createMockOrder();
+        mockOrder2.setId(2L);
+
+        when(orderRepository.findAll()).thenReturn(List.of(mockOrder1, mockOrder2));
+
+        List<AdminOrderDto> result = orderService.findAll();
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getOrderId()).isEqualTo(mockOrder1.getId());
+        assertThat(result.get(1).getOrderId()).isEqualTo(mockOrder2.getId());
     }
+
 
     @Test
     void shouldDeleteOrderAndItems() {
